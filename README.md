@@ -1,1 +1,1 @@
-Electron pulse insights
+Electron Pulse Insignts

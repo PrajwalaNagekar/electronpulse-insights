@@ -1,13 +1,12 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Home, ClipboardList, User, Bell, BarChart3 } from 'lucide-react';
+import { Home, ClipboardList, User, Bell } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { cn } from '@/lib/utils';
 
 const navItems = [
-  { icon: Home, path: '/dashboard', labelKey: 'dashboard' },
+  { icon: Home, path: '/dashboard', labelKey: 'home' },
   { icon: ClipboardList, path: '/tasks', labelKey: 'tasks' },
-  { icon: BarChart3, path: '/performance', labelKey: 'performance' },
   { icon: Bell, path: '/notifications', labelKey: 'notifications' },
   { icon: User, path: '/profile', labelKey: 'profile' },
 ];

@@ -29,7 +29,7 @@ export default function SurveyStartPage() {
       <div className="flex-1 px-5 pt-8">
         {step === 'type' ? (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-5">
-            <p className="text-sm text-muted-foreground text-center">Select survey type</p>
+            <p className="text-sm text-muted-foreground text-center">{t('selectSurveyType')}</p>
             <button
               onClick={() => { setSelectedType('question'); setStep('location'); }}
               className="w-full flex items-center gap-4 p-5 rounded-2xl border-2 border-border hover:border-secondary transition-colors bg-card"
@@ -70,7 +70,7 @@ export default function SurveyStartPage() {
               <p className="text-xs text-muted-foreground">Jayanagar, Bangalore</p>
             </div>
             {!locationConfirmed ? (
-              <Button onClick={confirmLocation} className="w-full h-12 bg-secondary text-base">
+              <Button onClick={confirmLocation} className="w-full h-12 bg-secondary text-base rounded-2xl">
                 {t('confirmLocation')}
               </Button>
             ) : (

@@ -6,10 +6,10 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { mockSurveyResponses } from '@/data/mockData';
 
 const volunteers = [
-  { name: 'Ramesh Kumar', surveys: 18, target: 25, ward: 'Ward 42' },
-  { name: 'Suresh Babu', surveys: 22, target: 25, ward: 'Ward 38' },
-  { name: 'Anitha R.', surveys: 25, target: 25, ward: 'Ward 15' },
-  { name: 'Manjunath H.', surveys: 10, target: 25, ward: 'Ward 29' },
+  { name: 'Ramesh Kumar', surveys: 35, target: 50, ward: 'Ward 42' },
+  { name: 'Suresh Babu', surveys: 48, target: 50, ward: 'Ward 38' },
+  { name: 'Anitha R.', surveys: 50, target: 50, ward: 'Ward 15' },
+  { name: 'Manjunath H.', surveys: 18, target: 50, ward: 'Ward 29' },
 ];
 
 export default function SupervisorPage() {
@@ -23,7 +23,6 @@ export default function SupervisorPage() {
         <h1 className="text-base font-semibold font-display text-foreground">{t('supervisor')}</h1>
       </div>
       <div className="flex-1 overflow-y-auto px-4 pt-4 space-y-4 pb-4">
-        {/* Volunteer list */}
         <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
           <Users className="w-4 h-4 text-secondary" />{t('volunteers')}
         </h2>
@@ -31,7 +30,7 @@ export default function SupervisorPage() {
           <div key={i} className="bg-card rounded-xl border border-border p-3.5 flex items-center justify-between">
             <div>
               <p className="text-sm font-semibold text-foreground">{v.name}</p>
-              <p className="text-xs text-muted-foreground">{v.ward} • {v.surveys}/{v.target} surveys</p>
+              <p className="text-xs text-muted-foreground">{v.ward} • {v.surveys}/{v.target} {t('survey').toLowerCase()}</p>
             </div>
             <div className="flex items-center gap-1">
               {v.surveys >= v.target ? (
@@ -45,7 +44,6 @@ export default function SupervisorPage() {
           </div>
         ))}
 
-        {/* Actions */}
         <div className="grid grid-cols-2 gap-3 pt-2">
           <Button variant="outline" className="h-12 rounded-xl text-xs gap-2">
             <Flag className="w-4 h-4" />{t('flagResponse')}
@@ -55,17 +53,16 @@ export default function SupervisorPage() {
           </Button>
         </div>
 
-        {/* Recent Submissions */}
         <h2 className="text-sm font-semibold text-foreground pt-2">{t('submissions')}</h2>
         {mockSurveyResponses.map(sr => (
           <div key={sr.id} className="bg-card rounded-xl border border-border p-3">
             <div className="flex justify-between items-center">
               <span className="text-xs font-medium text-foreground capitalize">{sr.surveyType}</span>
               <span className={`text-[10px] px-2 py-0.5 rounded-full ${sr.synced ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'}`}>
-                {sr.synced ? 'Synced' : 'Pending'}
+                {sr.synced ? t('synced') : t('pending')}
               </span>
             </div>
-            <p className="text-[10px] text-muted-foreground mt-1">{sr.answers.length} answers • {new Date(sr.startTime).toLocaleString('en-IN')}</p>
+            <p className="text-[10px] text-muted-foreground mt-1">{sr.answers.length} {t('answers')} • {new Date(sr.startTime).toLocaleString('en-IN')}</p>
           </div>
         ))}
       </div>

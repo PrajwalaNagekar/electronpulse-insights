@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Camera, MessageSquare, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Camera, MessageSquare, CheckCircle2, ThumbsUp, ThumbsDown, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Textarea } from '@/components/ui/textarea';
@@ -21,12 +21,14 @@ export default function SurveyQuestionPage() {
   const [showComplete, setShowComplete] = useState(false);
 
   const questions = useMemo(
-    () => surveyQuestions.filter(q => q.surveyType === (type as SurveyType)).slice(0, 10),
+    () => surveyQuestions.filter(q => q.surveyType === (type as SurveyType)),
     [type]
   );
 
   const question = questions[currentIndex];
   const progress = ((currentIndex + 1) / questions.length) * 100;
+  const answeredCount = Object.keys(answers).length;
+  const canSubmitEarly = answeredCount >= 30;
 
   const setAnswer = (val: string | number) => {
     setAnswers(prev => ({ ...prev, [question.id]: val }));
@@ -45,6 +47,10 @@ export default function SurveyQuestionPage() {
     if (currentIndex > 0) setCurrentIndex(i => i - 1);
   };
 
+  const handleSubmitEarly = () => {
+    setShowComplete(true);
+  };
+
   if (showComplete) {
     return (
       <div className="flex flex-col items-center justify-center h-full bg-background px-6 gap-6">
@@ -53,10 +59,10 @@ export default function SurveyQuestionPage() {
         </motion.div>
         <h1 className="text-xl font-bold font-display text-foreground">{t('surveyComplete')}</h1>
         <p className="text-sm text-muted-foreground text-center">
-          {Object.keys(answers).length} / {questions.length} questions answered
+          {answeredCount} / {questions.length} {t('questionsAnswered')}
         </p>
-        <Button onClick={() => navigate('/dashboard')} className="w-full h-12 bg-secondary">
-          {t('dashboard')}
+        <Button onClick={() => navigate('/dashboard')} className="w-full h-12 bg-secondary rounded-2xl">
+          {t('goHome')}
         </Button>
       </div>
     );
@@ -78,12 +84,21 @@ export default function SurveyQuestionPage() {
           <button onClick={goNext} className="text-xs text-secondary font-medium">{t('skip')}</button>
         </div>
         <Progress value={progress} className="h-2" />
+        {/* Answered count + early submit indicator */}
+        <div className="flex items-center justify-between mt-2">
+          <span className="text-[10px] text-muted-foreground">
+            {answeredCount} {t('questionsAnswered')}
+          </span>
+          {!canSubmitEarly && (
+            <span className="text-[10px] text-orange-500">{t('minimumRequired')}</span>
+          )}
+        </div>
       </div>
 
       {/* Question */}
-      <div className="flex-1 px-5 pt-6 pb-4 overflow-y-auto">
+      <div className="flex-1 px-5 pt-4 pb-4 overflow-y-auto">
         <AnimatePresence mode="wait">
-          <motion.div key={question.id} initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -40 }} className="space-y-6">
+          <motion.div key={question.id} initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -40 }} className="space-y-5">
             <div className="bg-muted/50 rounded-xl px-3 py-1 inline-block">
               <span className="text-[10px] font-medium text-muted-foreground uppercase">{question.category}</span>
             </div>
@@ -91,7 +106,7 @@ export default function SurveyQuestionPage() {
               {question.text[language]}
             </h2>
 
-            {/* Answer UI by type */}
+            {/* Multiple choice */}
             {question.questionType === 'multiple_choice' && question.options && (
               <div className="space-y-2.5">
                 {question.options.map(opt => (
@@ -110,21 +125,26 @@ export default function SurveyQuestionPage() {
               </div>
             )}
 
+            {/* Yes/No with civic icons */}
             {question.questionType === 'yes_no' && (
               <div className="flex gap-3">
-                {['yes', 'no', 'undecided'].map(val => (
+                {[
+                  { val: 'yes', icon: ThumbsUp, activeColor: 'border-green-500 bg-green-50', iconColor: 'text-green-600' },
+                  { val: 'no', icon: ThumbsDown, activeColor: 'border-red-500 bg-red-50', iconColor: 'text-red-600' },
+                  { val: 'undecided', icon: HelpCircle, activeColor: 'border-yellow-500 bg-yellow-50', iconColor: 'text-yellow-600' },
+                ].map(({ val, icon: Icon, activeColor, iconColor }) => (
                   <button
                     key={val}
                     onClick={() => setAnswer(val)}
-                    className={`flex-1 py-4 rounded-2xl border-2 text-sm font-semibold transition-all ${
-                      answers[question.id] === val
-                        ? val === 'yes' ? 'border-green-500 bg-green-50 text-green-700'
-                          : val === 'no' ? 'border-red-500 bg-red-50 text-red-700'
-                          : 'border-yellow-500 bg-yellow-50 text-yellow-700'
-                        : 'border-border bg-card text-foreground'
+                    className={`flex-1 py-4 rounded-2xl border-2 flex flex-col items-center gap-2 text-sm font-semibold transition-all ${
+                      answers[question.id] === val ? activeColor : 'border-border bg-card text-foreground'
                     }`}
                   >
-                    {val === 'yes' ? '👍' : val === 'no' ? '👎' : '🤷'}<br />
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                      answers[question.id] === val ? activeColor : 'bg-muted'
+                    }`}>
+                      <Icon className={`w-6 h-6 ${answers[question.id] === val ? iconColor : 'text-muted-foreground'}`} />
+                    </div>
                     {t(val)}
                   </button>
                 ))}
@@ -141,10 +161,10 @@ export default function SurveyQuestionPage() {
 
             {question.questionType === 'short_text' && (
               <Textarea
-                placeholder="Type your response..."
+                placeholder={t('typeResponse')}
                 value={(answers[question.id] as string) || ''}
                 onChange={e => setAnswer(e.target.value)}
-                className="min-h-[120px] text-base"
+                className="min-h-[120px] text-base rounded-xl"
               />
             )}
 
@@ -155,7 +175,7 @@ export default function SurveyQuestionPage() {
                     <div className="w-4 h-4 bg-white rounded-sm" />
                   </div>
                 </div>
-                <p className="text-sm text-muted-foreground">Tap to record</p>
+                <p className="text-sm text-muted-foreground">{t('tapToRecord')}</p>
               </div>
             )}
 
@@ -174,14 +194,21 @@ export default function SurveyQuestionPage() {
       </div>
 
       {/* Footer */}
-      <div className="px-5 py-3 border-t border-border flex gap-3">
-        <Button variant="outline" className="flex-1 h-12" onClick={() => navigate('/survey/photo')}>
-          <Camera className="w-4 h-4 mr-2" />
-          {t('addPhoto')}
-        </Button>
-        <Button className="flex-1 h-12 bg-secondary" onClick={goNext}>
-          {currentIndex < questions.length - 1 ? t('next') : t('submit')}
-        </Button>
+      <div className="px-5 py-3 border-t border-border space-y-2">
+        <div className="flex gap-3">
+          <Button variant="outline" className="flex-1 h-11 rounded-xl" onClick={() => navigate('/survey/photo')}>
+            <Camera className="w-4 h-4 mr-2" />
+            {t('addPhoto')}
+          </Button>
+          <Button className="flex-1 h-11 bg-secondary rounded-xl" onClick={goNext}>
+            {currentIndex < questions.length - 1 ? t('next') : t('submit')}
+          </Button>
+        </div>
+        {canSubmitEarly && currentIndex < questions.length - 1 && (
+          <Button variant="outline" className="w-full h-10 rounded-xl text-secondary border-secondary/30" onClick={handleSubmitEarly}>
+            {t('submitEarly')} ({answeredCount}/{questions.length})
+          </Button>
+        )}
       </div>
     </div>
   );

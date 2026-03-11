@@ -1,11 +1,13 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { User } from '@/types';
+import { User, SignUpRequest } from '@/types';
 import { mockUsers } from '@/data/mockData';
 
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   login: (phone: string, otp: string) => Promise<boolean>;
+  loginWithEmail: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  signup: (data: Omit<SignUpRequest, 'accountStatus' | 'submittedAt'>) => Promise<boolean>;
   logout: () => void;
 }
 
@@ -18,12 +20,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   });
 
   const login = async (phone: string, _otp: string): Promise<boolean> => {
-    // Mock: any 6-digit OTP works
     await new Promise(r => setTimeout(r, 1000));
     const mockUser = phone.includes('876') ? mockUsers.supervisor1 : mockUsers.volunteer1;
+    if (mockUser.accountStatus !== 'approved') return false;
     setUser(mockUser);
     localStorage.setItem('ei_user', JSON.stringify(mockUser));
     localStorage.setItem('ei_token', 'mock_jwt_token_' + Date.now());
+    return true;
+  };
+
+  const loginWithEmail = async (email: string, _password: string): Promise<{ success: boolean; error?: string }> => {
+    await new Promise(r => setTimeout(r, 1000));
+    const matchedUser = Object.values(mockUsers).find(u => u.email === email);
+    if (!matchedUser) return { success: false, error: 'accountNotApproved' };
+    if (matchedUser.accountStatus !== 'approved') return { success: false, error: 'accountNotApproved' };
+    setUser(matchedUser);
+    localStorage.setItem('ei_user', JSON.stringify(matchedUser));
+    localStorage.setItem('ei_token', 'mock_jwt_token_' + Date.now());
+    return { success: true };
+  };
+
+  const signup = async (data: Omit<SignUpRequest, 'accountStatus' | 'submittedAt'>): Promise<boolean> => {
+    await new Promise(r => setTimeout(r, 1500));
+    const request: SignUpRequest = {
+      ...data,
+      accountStatus: 'pending',
+      submittedAt: new Date().toISOString(),
+    };
+    // Store in localStorage for mock
+    const existing = JSON.parse(localStorage.getItem('ei_signups') || '[]');
+    existing.push(request);
+    localStorage.setItem('ei_signups', JSON.stringify(existing));
     return true;
   };
 
@@ -34,7 +61,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, logout }}>
+    <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, loginWithEmail, signup, logout }}>
       {children}
     </AuthContext.Provider>
   );

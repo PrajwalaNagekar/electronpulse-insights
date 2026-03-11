@@ -2,6 +2,8 @@ export type Language = 'en' | 'hi' | 'kn';
 
 export type UserRole = 'volunteer' | 'supervisor' | 'coordinator';
 
+export type AccountStatus = 'pending' | 'approved' | 'rejected';
+
 export interface User {
   id: string;
   name: string;
@@ -14,6 +16,21 @@ export interface User {
   avatar?: string;
   dailyTarget: number;
   surveysCompleted: number;
+  accountStatus?: AccountStatus;
+}
+
+export interface SignUpRequest {
+  fullName: string;
+  phone: string;
+  email: string;
+  address: string;
+  aadhaarNumber: string;
+  panNumber: string;
+  aadhaarImage?: string;
+  panImage?: string;
+  selfieImage?: string;
+  accountStatus: AccountStatus;
+  submittedAt: string;
 }
 
 export type SurveyType = 'question' | 'exercise';
@@ -82,6 +99,7 @@ export interface Task {
   status: 'pending' | 'in_progress' | 'completed';
   priority: 'low' | 'medium' | 'high';
   assignedTo: string;
+  completedHouseholds?: number;
 }
 
 export interface Notification {
@@ -97,7 +115,10 @@ export interface LeaveRequest {
   id: string;
   userId: string;
   date: string;
+  startTime: string;
+  endTime: string;
   reason: string;
+  approver: 'district_supervisor' | 'campaign_manager';
   status: 'pending' | 'approved' | 'rejected';
   createdAt: string;
 }
