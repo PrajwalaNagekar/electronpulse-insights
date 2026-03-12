@@ -166,10 +166,28 @@ export const translations: TranslationKeys = {
   of: { en: 'of', hi: 'का', kn: 'ರ' },
   online: { en: 'Online', hi: 'ऑनलाइन', kn: 'ಆನ್‌ಲೈನ್' },
   offline: { en: 'Offline', hi: 'ऑफ़लाइन', kn: 'ಆಫ್‌ಲೈನ್' },
-  poweredBy: { en: 'Powered by LXN Technologies', hi: 'LXN Technologies द्वारा संचालित', kn: 'LXN Technologies ಮೂಲಕ ನಡೆಸಲಾಗುತ್ತಿದೆ' },
+  poweredBy: { en: 'Powered by Anormos', hi: 'Anormos द्वारा संचालित', kn: 'Anormos ಮೂಲಕ ನಡೆಸಲಾಗುತ್ತಿದೆ' },
   goHome: { en: 'Go to Home', hi: 'होम पर जाएं', kn: 'ಹೋಮ್‌ಗೆ ಹೋಗಿ' },
   synced: { en: 'Synced', hi: 'सिंक हुआ', kn: 'ಸಿಂಕ್ ಆಗಿದೆ' },
   answers: { en: 'answers', hi: 'उत्तर', kn: 'ಉತ್ತರಗಳು' },
+
+  // Survey modal
+  startYourSurvey: { en: 'Start your survey', hi: 'अपना सर्वेक्षण शुरू करें', kn: 'ನಿಮ್ಮ ಸಮೀಕ್ಷೆ ಪ್ರಾರಂಭಿಸಿ' },
+  surveyNudgeSubtitle: { en: 'Your feedback matters. Help us understand citizen concerns by answering a few quick questions.', hi: 'आपकी प्रतिक्रिया मायने रखती है। कुछ प्रश्नों का उत्तर देकर नागरिकों की चिंताओं को समझने में हमारी सहायता करें।', kn: 'ನಿಮ್ಮ ಅಭಿಪ್ರಾಯ ಮುಖ್ಯ. ಕೆಲವು ಪ್ರಶ್ನೆಗಳಿಗೆ ಉತ್ತರಿಸಿ ನಾಗರಿಕರ ಕಳವಳಗಳನ್ನು ಅರ್ಥಮಾಡಿಕೊಳ್ಳಲು ನಮಗೆ ಸಹಾಯ ಮಾಡಿ.' },
+  continueToApp: { en: 'Continue to App', hi: 'ऐप पर जारी रखें', kn: 'ಅಪ್ಲಿಕೇಶನ್‌ಗೆ ಮುಂದುವರಿಯಿರಿ' },
+  surveySubmittedToast: { en: 'Survey submitted successfully.', hi: 'सर्वेक्षण सफलतापूर्वक जमा किया गया।', kn: 'ಸಮೀಕ್ಷೆ ಯಶಸ್ವಿಯಾಗಿ ಸಲ್ಲಿಸಲಾಗಿದೆ.' },
+  surveySubmittedCount: { en: 'Survey submitted. You answered {count} questions.', hi: 'सर्वेक्षण जमा। आपने {count} प्रश्नों का उत्तर दिया।', kn: 'ಸಮೀಕ್ಷೆ ಸಲ್ಲಿಸಲಾಗಿದೆ. ನೀವು {count} ಪ್ರಶ್ನೆಗಳಿಗೆ ಉತ್ತರಿಸಿದ್ದೀರಿ.' },
+
+  // Respondent info (Exercise mode)
+  citizenName: { en: 'Citizen Name', hi: 'नागरिक का नाम', kn: 'ನಾಗರಿಕರ ಹೆಸರು' },
+  citizenPhone: { en: 'Phone Number', hi: 'फोन नंबर', kn: 'ಫೋನ್ ನಂಬರ್' },
+  areaName: { en: 'Area Name', hi: 'क्षेत्र का नाम', kn: 'ಪ್ರದೇಶದ ಹೆಸರು' },
+  respondentInfo: { en: 'Respondent Information', hi: 'उत्तरदाता जानकारी', kn: 'ಪ್ರತಿವಾದಿ ಮಾಹಿತಿ' },
+  proceedToSurvey: { en: 'Proceed to Survey', hi: 'सर्वेक्षण पर आगे बढ़ें', kn: 'ಸಮೀಕ್ಷೆಗೆ ಮುಂದುವರಿಯಿರಿ' },
+  backgroundLocationWarning: { en: 'Background location helps validate fieldwork. Please re-enable it in settings.', hi: 'पृष्ठभूमि स्थान फ़ील्डवर्क को मान्य करने में सहायता करता है। कृपया इसे सेटिंग्स में पुनः सक्षम करें।', kn: 'ಹಿನ್ನೆಲೆ ಸ್ಥಳವು ಕ್ಷೇತ್ರಕಾರ್ಯವನ್ನು ಮೌಲ್ಯೀಕರಿಸಲು ಸಹಾಯ ಮಾಡುತ್ತದೆ. ದಯವಿಟ್ಟು ಸೆಟ್ಟಿಂಗ್‌ಗಳಲ್ಲಿ ಮತ್ತೆ ಸಕ್ರಿಯಗೊಳಿಸಿ.' },
+  enterCitizenName: { en: 'Enter citizen name', hi: 'नागरिक का नाम दर्ज करें', kn: 'ನಾಗರಿಕರ ಹೆಸರು ನಮೂದಿಸಿ' },
+  enterPhoneNumber: { en: 'Enter phone number', hi: 'फोन नंबर दर्ज करें', kn: 'ಫೋನ್ ನಂಬರ್ ನಮೂದಿಸಿ' },
+  enterAreaName: { en: 'Enter area name', hi: 'क्षेत्र का नाम दर्ज करें', kn: 'ಪ್ರದೇಶದ ಹೆಸರು ನಮೂದಿಸಿ' },
 
   // Sentiment
   verySatisfied: { en: 'Very Satisfied', hi: 'बहुत संतुष्ट', kn: 'ಬಹಳ ತೃಪ್ತಿ' },

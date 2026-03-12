@@ -25,8 +25,8 @@ export default function TasksPage() {
   };
 
   return (
-    <div className="flex flex-col h-full ">
-      <div className="flex-1 overflow-y-auto scrollbar-hide">
+    <div className="flex flex-col h-full">
+      <div className="flex-1 overflow-y-auto">
         <div className="px-5 pt-5 pb-3">
           <h1 className="text-lg font-bold font-display text-foreground">{t('tasks')}</h1>
         </div>

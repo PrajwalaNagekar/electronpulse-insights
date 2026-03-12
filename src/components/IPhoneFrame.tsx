@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Wifi, Battery, Signal } from 'lucide-react';
+import { PhoneViewportContext } from '@/contexts/PhoneViewportContext';
 
 interface IPhoneFrameProps {
   children: React.ReactNode;
@@ -7,6 +8,8 @@ interface IPhoneFrameProps {
 
 export function IPhoneFrame({ children }: IPhoneFrameProps) {
   const [time, setTime] = useState('');
+  const [phoneContainer, setPhoneContainer] = useState<HTMLElement | null>(null);
+  const setPhoneRef = useCallback((el: HTMLDivElement | null) => setPhoneContainer(el), []);
 
   useEffect(() => {
     const updateTime = () => {
@@ -19,8 +22,9 @@ export function IPhoneFrame({ children }: IPhoneFrameProps) {
   }, []);
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-100 to-slate-200 p-4">
-      <div className="relative w-[393px] h-[852px] phone-bezel bg-background overflow-hidden flex flex-col">
+    <PhoneViewportContext.Provider value={{ container: phoneContainer }}>
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-100 to-slate-200 p-4">
+        <div ref={setPhoneRef} className="relative w-[393px] h-[852px] phone-bezel bg-background overflow-hidden flex flex-col">
         {/* Dynamic Island / Notch */}
         <div className="absolute top-0 left-0 right-0 z-50">
           <div className="flex items-center justify-center pt-2">
@@ -54,5 +58,6 @@ export function IPhoneFrame({ children }: IPhoneFrameProps) {
         </div>
       </div>
     </div>
+    </PhoneViewportContext.Provider>
   );
 }

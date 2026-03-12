@@ -1,15 +1,15 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Camera, MessageSquare, CheckCircle2, ThumbsUp, ThumbsDown, HelpCircle } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, ThumbsUp, ThumbsDown, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
 import { Textarea } from '@/components/ui/textarea';
 import { EmojiSlider } from '@/components/EmojiSlider';
 import { StarRating } from '@/components/StarRating';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { surveyQuestions } from '@/data/questions';
 import { SurveyType } from '@/types';
+import { toast } from 'sonner';
 
 export default function SurveyQuestionPage() {
   const { type } = useParams<{ type: string }>();
@@ -17,7 +17,6 @@ export default function SurveyQuestionPage() {
   const { t, language } = useLanguage();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string | number>>({});
-  const [comment, setComment] = useState('');
   const [showComplete, setShowComplete] = useState(false);
 
   const questions = useMemo(
@@ -26,9 +25,7 @@ export default function SurveyQuestionPage() {
   );
 
   const question = questions[currentIndex];
-  const progress = ((currentIndex + 1) / questions.length) * 100;
   const answeredCount = Object.keys(answers).length;
-  const canSubmitEarly = answeredCount >= 30;
 
   const setAnswer = (val: string | number) => {
     setAnswers(prev => ({ ...prev, [question.id]: val }));
@@ -37,17 +34,13 @@ export default function SurveyQuestionPage() {
   const goNext = () => {
     if (currentIndex < questions.length - 1) {
       setCurrentIndex(i => i + 1);
-      setComment('');
     } else {
-      setShowComplete(true);
+      handleSubmit();
     }
   };
 
-  const goPrev = () => {
-    if (currentIndex > 0) setCurrentIndex(i => i - 1);
-  };
-
-  const handleSubmitEarly = () => {
+  const handleSubmit = () => {
+    toast.success(t('surveySubmittedToast'));
     setShowComplete(true);
   };
 
@@ -58,9 +51,6 @@ export default function SurveyQuestionPage() {
           <CheckCircle2 className="w-14 h-14 text-green-500" />
         </motion.div>
         <h1 className="text-xl font-bold font-display text-foreground">{t('surveyComplete')}</h1>
-        <p className="text-sm text-muted-foreground text-center">
-          {answeredCount} / {questions.length} {t('questionsAnswered')}
-        </p>
         <Button onClick={() => navigate('/dashboard')} className="w-full h-12 bg-secondary rounded-2xl">
           {t('goHome')}
         </Button>
@@ -72,27 +62,16 @@ export default function SurveyQuestionPage() {
 
   return (
     <div className="flex flex-col h-full bg-background">
-      {/* Header */}
+      {/* Header — no question counter */}
       <div className="px-4 py-3 border-b border-border">
         <div className="flex items-center justify-between mb-2">
-          <button onClick={() => currentIndex === 0 ? navigate(-1) : goPrev()}>
+          <button onClick={() => currentIndex === 0 ? navigate(-1) : setCurrentIndex(i => i - 1)}>
             <ArrowLeft className="w-5 h-5 text-foreground" />
           </button>
-          <span className="text-xs font-medium text-muted-foreground">
-            {currentIndex + 1} {t('of')} {questions.length}
-          </span>
-          <button onClick={goNext} className="text-xs text-secondary font-medium">{t('skip')}</button>
+          <h2 className="text-sm font-semibold text-foreground">{t('survey')}</h2>
+          <div className="w-5" />
         </div>
-        <Progress value={progress} className="h-2" />
-        {/* Answered count + early submit indicator */}
-        <div className="flex items-center justify-between mt-2">
-          <span className="text-[10px] text-muted-foreground">
-            {answeredCount} {t('questionsAnswered')}
-          </span>
-          {!canSubmitEarly && (
-            <span className="text-[10px] text-orange-500">{t('minimumRequired')}</span>
-          )}
-        </div>
+        
       </div>
 
       {/* Question */}
@@ -178,37 +157,22 @@ export default function SurveyQuestionPage() {
                 <p className="text-sm text-muted-foreground">{t('tapToRecord')}</p>
               </div>
             )}
-
-            {/* Comment */}
-            <div className="flex items-center gap-2 pt-2">
-              <MessageSquare className="w-4 h-4 text-muted-foreground" />
-              <input
-                placeholder={t('addComment')}
-                value={comment}
-                onChange={e => setComment(e.target.value)}
-                className="flex-1 text-xs bg-transparent border-b border-border py-1 outline-none text-foreground placeholder:text-muted-foreground"
-              />
-            </div>
           </motion.div>
         </AnimatePresence>
       </div>
 
-      {/* Footer */}
-      <div className="px-5 py-3 border-t border-border space-y-2">
+      {/* Footer — only Next and Submit */}
+      <div className="px-5 py-3 border-t border-border">
         <div className="flex gap-3">
-          <Button variant="outline" className="flex-1 h-11 rounded-xl" onClick={() => navigate('/survey/photo')}>
-            <Camera className="w-4 h-4 mr-2" />
-            {t('addPhoto')}
-          </Button>
-          <Button className="flex-1 h-11 bg-secondary rounded-xl" onClick={goNext}>
+          <Button className="flex-1 h-11 rounded-xl" onClick={goNext}>
             {currentIndex < questions.length - 1 ? t('next') : t('submit')}
           </Button>
+          {currentIndex < questions.length - 1 && (
+            <Button variant="outline" className="flex-1 h-11 rounded-xl border-secondary/30 text-secondary" onClick={handleSubmit}>
+              {t('submit')}
+            </Button>
+          )}
         </div>
-        {canSubmitEarly && currentIndex < questions.length - 1 && (
-          <Button variant="outline" className="w-full h-10 rounded-xl text-secondary border-secondary/30" onClick={handleSubmitEarly}>
-            {t('submitEarly')} ({answeredCount}/{questions.length})
-          </Button>
-        )}
       </div>
     </div>
   );

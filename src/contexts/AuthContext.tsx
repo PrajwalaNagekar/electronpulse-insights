@@ -58,6 +58,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
     localStorage.removeItem('ei_user');
     localStorage.removeItem('ei_token');
+    sessionStorage.removeItem('cf_survey_modal_dismissed');
   };
 
   return (

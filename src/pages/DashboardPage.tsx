@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { PlayCircle, ListChecks, Share2, RefreshCw, MapPin, Wifi, WifiOff, Clock, TrendingUp, Target, Zap, Award } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, LabelList } from 'recharts';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { usePhoneViewport } from '@/contexts/PhoneViewportContext';
 import { mockSyncStatus, mockPerformance } from '@/data/mockData';
 import { BottomNav } from '@/components/BottomNav';
 import { toast } from 'sonner';
@@ -14,10 +16,19 @@ import { toast } from 'sonner';
 export default function DashboardPage() {
   const { user } = useAuth();
   const { t } = useLanguage();
+  const { container: phoneContainer } = usePhoneViewport() ?? {};
   const navigate = useNavigate();
   const sync = mockSyncStatus;
   const p = mockPerformance;
   const progress = user ? Math.round((user.surveysCompleted / user.dailyTarget) * 100) : 0;
+  const [showSurveyModal, setShowSurveyModal] = useState(() => {
+    return sessionStorage.getItem('cf_survey_modal_dismissed') !== 'true';
+  });
+
+  const dismissModal = () => {
+    sessionStorage.setItem('cf_survey_modal_dismissed', 'true');
+    setShowSurveyModal(false);
+  };
 
   const handleSync = () => {
     toast.info(t('syncing'));
@@ -39,7 +50,27 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-y-auto scrollbar-hide pb-4">
+      {/* Start Survey Modal */}
+      <Dialog open={showSurveyModal} onOpenChange={(open) => { if (!open) dismissModal(); }}>
+        <DialogContent container={phoneContainer ?? undefined} className="w-[80%] max-w-xs rounded-2xl p-5" onPointerDownOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()}>
+          <DialogHeader className="text-center">
+            <DialogTitle className="text-base font-bold font-display">{t('startYourSurvey')}</DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground mt-1.5 leading-relaxed">
+              {t('surveyNudgeSubtitle')}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-2 mt-3">
+            <Button className="w-full h-11 bg-secondary rounded-2xl text-sm font-semibold" onClick={() => { dismissModal(); navigate('/survey/start'); }}>
+              {t('startSurvey')}
+            </Button>
+            <Button variant="outline" className="w-full h-11 rounded-2xl text-sm" onClick={dismissModal}>
+              {t('continueToApp')}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <div className="flex-1 overflow-y-auto pb-4">
         {/* Header */}
         <div className="bg-primary px-5 pt-4 pb-8 rounded-b-3xl">
           <div className="flex items-center justify-between mb-4">
@@ -127,14 +158,16 @@ export default function DashboardPage() {
             ))}
           </div>
 
-          {/* Weekly Trend Chart */}
+          {/* Weekly Trend Chart — with visible values */}
           <div className="bg-card rounded-2xl border border-border p-4">
             <h3 className="text-sm font-semibold text-foreground mb-3">{t('weeklyTrend')}</h3>
-            <ResponsiveContainer width="100%" height={120}>
-              <BarChart data={p.weeklyTrend}>
-                <XAxis dataKey="day" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-                <YAxis hide />
-                <Bar dataKey="count" fill="hsl(217, 91%, 60%)" radius={[6, 6, 0, 0]} />
+            <ResponsiveContainer width="100%" height={160}>
+              <BarChart data={p.weeklyTrend} margin={{ top: 20, right: 5, left: -10, bottom: 0 }}>
+                <XAxis dataKey="day" tick={{ fontSize: 11, fill: 'hsl(215, 16%, 47%)' }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 10, fill: 'hsl(215, 16%, 47%)' }} axisLine={false} tickLine={false} width={30} />
+                <Bar dataKey="count" fill="hsl(217, 91%, 60%)" radius={[6, 6, 0, 0]}>
+                  <LabelList dataKey="count" position="top" style={{ fontSize: 10, fontWeight: 600, fill: 'hsl(217, 91%, 60%)' }} />
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           </div>

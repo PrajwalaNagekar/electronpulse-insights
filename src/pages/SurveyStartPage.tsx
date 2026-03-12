@@ -1,21 +1,18 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ClipboardList, Users, MapPin, ArrowLeft, CheckCircle2 } from 'lucide-react';
+import { ClipboardList, Users, ArrowLeft, User, Phone, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function SurveyStartPage() {
-  const [step, setStep] = useState<'type' | 'location'>('type');
-  const [selectedType, setSelectedType] = useState<'question' | 'exercise' | null>(null);
-  const [locationConfirmed, setLocationConfirmed] = useState(false);
+  const [step, setStep] = useState<'type' | 'respondent'>('type');
+  const [respondent, setRespondent] = useState({ name: '', phone: '', area: '' });
   const navigate = useNavigate();
   const { t } = useLanguage();
 
-  const confirmLocation = () => {
-    setLocationConfirmed(true);
-    setTimeout(() => navigate(`/survey/questions/${selectedType}`), 800);
-  };
+  const isRespondentValid = respondent.name.trim() && respondent.phone.trim().length >= 10 && respondent.area.trim();
 
   return (
     <div className="flex flex-col h-full bg-background">
@@ -23,15 +20,18 @@ export default function SurveyStartPage() {
         <button onClick={() => step === 'type' ? navigate(-1) : setStep('type')}>
           <ArrowLeft className="w-5 h-5 text-foreground" />
         </button>
-        <h1 className="text-base font-semibold font-display text-foreground">{t('startSurvey')}</h1>
+        <h1 className="text-base font-semibold font-display text-foreground">
+          {step === 'type' ? t('startSurvey') : t('respondentInfo')}
+        </h1>
       </div>
 
       <div className="flex-1 px-5 pt-8">
         {step === 'type' ? (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-5">
             <p className="text-sm text-muted-foreground text-center">{t('selectSurveyType')}</p>
+            {/* Questions — Volunteer mode: direct start */}
             <button
-              onClick={() => { setSelectedType('question'); setStep('location'); }}
+              onClick={() => navigate('/survey/questions/question')}
               className="w-full flex items-center gap-4 p-5 rounded-2xl border-2 border-border hover:border-secondary transition-colors bg-card"
             >
               <div className="w-14 h-14 rounded-2xl bg-secondary/10 flex items-center justify-center">
@@ -42,8 +42,9 @@ export default function SurveyStartPage() {
                 <p className="text-xs text-muted-foreground mt-0.5">{t('questionsDesc')}</p>
               </div>
             </button>
+            {/* Exercise — requires respondent info */}
             <button
-              onClick={() => { setSelectedType('exercise'); setStep('location'); }}
+              onClick={() => setStep('respondent')}
               className="w-full flex items-center gap-4 p-5 rounded-2xl border-2 border-border hover:border-accent transition-colors bg-card"
             >
               <div className="w-14 h-14 rounded-2xl bg-accent/10 flex items-center justify-center">
@@ -56,26 +57,52 @@ export default function SurveyStartPage() {
             </button>
           </motion.div>
         ) : (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center gap-6 pt-8">
-            <div className="w-24 h-24 rounded-full bg-muted flex items-center justify-center">
-              {locationConfirmed ? (
-                <CheckCircle2 className="w-12 h-12 text-green-500" />
-              ) : (
-                <MapPin className="w-12 h-12 text-secondary animate-pulse" />
-              )}
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
+            <p className="text-sm text-muted-foreground text-center mb-2">{t('respondentInfo')}</p>
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-foreground">{t('citizenName')} *</label>
+              <div className="relative">
+                <User className="absolute left-3 top-3.5 w-4 h-4 text-muted-foreground" />
+                <Input
+                  placeholder={t('enterCitizenName')}
+                  value={respondent.name}
+                  onChange={e => setRespondent(p => ({ ...p, name: e.target.value }))}
+                  className="pl-10 h-12 rounded-xl"
+                />
+              </div>
             </div>
-            <div className="text-center">
-              <h2 className="font-semibold text-foreground">{t('confirmLocation')}</h2>
-              <p className="text-xs text-muted-foreground mt-1">12.9279° N, 77.5831° E</p>
-              <p className="text-xs text-muted-foreground">Jayanagar, Bangalore</p>
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-foreground">{t('citizenPhone')} *</label>
+              <div className="relative">
+                <Phone className="absolute left-3 top-3.5 w-4 h-4 text-muted-foreground" />
+                <Input
+                  type="tel"
+                  placeholder={t('enterPhoneNumber')}
+                  value={respondent.phone}
+                  onChange={e => setRespondent(p => ({ ...p, phone: e.target.value }))}
+                  className="pl-10 h-12 rounded-xl"
+                />
+              </div>
             </div>
-            {!locationConfirmed ? (
-              <Button onClick={confirmLocation} className="w-full h-12 bg-secondary text-base rounded-2xl">
-                {t('confirmLocation')}
-              </Button>
-            ) : (
-              <p className="text-sm text-green-600 font-medium">{t('locationCaptured')} ✓</p>
-            )}
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-foreground">{t('areaName')} *</label>
+              <div className="relative">
+                <MapPin className="absolute left-3 top-3.5 w-4 h-4 text-muted-foreground" />
+                <Input
+                  placeholder={t('enterAreaName')}
+                  value={respondent.area}
+                  onChange={e => setRespondent(p => ({ ...p, area: e.target.value }))}
+                  className="pl-10 h-12 rounded-xl"
+                />
+              </div>
+            </div>
+            <Button
+              onClick={() => navigate('/survey/questions/exercise')}
+              className="w-full h-12 bg-secondary text-base rounded-2xl mt-4"
+              disabled={!isRespondentValid}
+            >
+              {t('proceedToSurvey')}
+            </Button>
           </motion.div>
         )}
       </div>
